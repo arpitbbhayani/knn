@@ -1,20 +1,24 @@
 __author__ = 'arpit'
 
 import csv
+import random
+import Queue
+import sys
 
 
-def knn(file_path, on_attributes, column_map, column_list, distance_function):
+def knn_classify(file_path, meta_file_path, on_attributes, class_column_name, distance_function):
     """
-    The actual algorithmic implementation of KNN-Classification
-    :param file_path:
-    :param on_attributes:
-    :param column_map:
-    :param column_list:
-    :param distance_function:
+    :param file_path: File path to the actual csv data that needs to be classified
+    :param meta_file_path: File path to the meta data fle of the dataset
+    :param on_attributes: List of attributes (column_names) using which classification is to be done
+    :param class_column_name: The column that needs to be classified
+    :param distance_function: The distance function that needs to be applied
     :return:
     """
+    column_list, column_map = parse_meta(meta_file_path)
     column_name_to_number = {}
     csv_data = []
+    list_classes = set()
 
     index = 0
     for column_name in column_list:
@@ -22,17 +26,67 @@ def knn(file_path, on_attributes, column_map, column_list, distance_function):
         index += 1
 
     included_cols = list(value for key, value in column_name_to_number.iteritems() if key in on_attributes)
+    class_column_number = column_name_to_number[class_column_name]
 
     with open(file_path, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             if len(row) > 0:
                 temp_list = dict((column_list[i], row[i]) for i in included_cols)
+                temp_list[class_column_name] = row[class_column_number]
+                list_classes.add(row[class_column_number])
                 csv_data.append(temp_list)
 
-    """print csv_data"""
+    n = len(csv_data)
 
-    distance_function(column_map, csv_data[0], csv_data[1])
+    for i in range(10):
+        """ Shuffle the dataset """
+        random.shuffle(csv_data)
+        training_dataset = csv_data[0:n/2]
+        test_dataset = csv_data[n/2:]
+        knn(training_dataset, test_dataset, distance_function, list_classes, class_column_name, column_map, 1)
+
+
+def knn(training_dataset, test_dataset, distance_function, list_classes, class_column_name, column_map, K):
+    confusion_matrix = {}
+
+    for i in list_classes:
+        confusion_matrix[i] = {}
+        for j in list_classes:
+            confusion_matrix[i][j] = 0
+
+    for row_test in test_dataset:
+        k = K
+        actual_class = row_test[class_column_name]
+        predicted_class = ''
+        q = Queue.PriorityQueue()
+        for row_training in training_dataset:
+            d = distance_function(column_map, row_test, row_training)
+            q.put((d, row_training))
+
+        list_probables = []
+        last_dist = None
+        if not q.empty():
+            t = q.get()
+            list_probables.append(t)
+            last_dist = t[0]
+
+        while not q.empty():
+            t = q.get()
+            if t[0] != last_dist:
+                last_dist = t[0]
+                k -= 1
+            if k <= 0:
+                break
+            list_probables.append(t)
+
+        if len(list_probables) == 1:
+            predicted_class = list_probables[0][1][class_column_name]
+        else:
+            predicted_class = list_probables[0][1][class_column_name]
+        confusion_matrix[predicted_class][actual_class] += 1
+
+    return confusion_matrix
 
 
 def parse_meta(file_path):

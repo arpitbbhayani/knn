@@ -42,5 +42,4 @@ def euclidean(column_map, data1, data2):
             pass
         else:
             print 'Datatype missmatch'
-    print 'euclidean distance : ', math.sqrt(distance_sum)
-    return math.sqrt(distance_sum)
+    return round(math.sqrt(distance_sum), 5)
