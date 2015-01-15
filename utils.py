@@ -48,22 +48,41 @@ def knn_classify(file_path, meta_file_path, on_attributes, class_column_name, di
     for i in range(10):
         """ Shuffle the dataset """
         random.shuffle(csv_data)
-        training_dataset = csv_data[0:n / 2]
-        test_dataset = csv_data[n / 2:]
+
+        training_dataset = csv_data[0:n/2]
+        test_dataset = csv_data[n/2:]
         confusion_matrix = knn(training_dataset, test_dataset, distance_function, list_classes, class_column_name,
                                column_map, 1)
-
+        summary[i] = get_statistics_for_dataset(training_dataset, class_column_name, confusion_matrix)
         aggregate(aggregated_confusion_matrix, confusion_matrix)
 
     summary['aggregated_confusion_matrix'] = aggregated_confusion_matrix
     return summary
 
 
+def get_statistics_for_dataset(dataset, class_column_name, confusion_matrix):
+    stat_data = {}
+    number_of_datapoints = len(dataset)
+    class_stat = {}
+    freq = {}
+    for i in dataset:
+        freq[i[class_column_name]] = freq.get(i[class_column_name], 0) + 1
+    class_stat['freq'] = freq
+
+    sum_data = 0.0
+    for i in confusion_matrix.keys():
+        sum_data += confusion_matrix[i][i]
+    class_stat['accuracy'] = sum_data/number_of_datapoints
+    stat_data['number_of_datapoints'] = number_of_datapoints
+    stat_data['number_of_classes'] = len(freq.keys())
+    stat_data['class_stat'] = class_stat
+    return stat_data
+
+
 def aggregate(aggregated_confusion_matrix, confusion_matrix):
     for i in aggregated_confusion_matrix.keys():
         for j in aggregated_confusion_matrix.keys():
             aggregated_confusion_matrix[i][j] += confusion_matrix[i][j]
-
 
 
 def knn(training_dataset, test_dataset, distance_function, list_classes, class_column_name, column_map, K):
@@ -77,7 +96,6 @@ def knn(training_dataset, test_dataset, distance_function, list_classes, class_c
     for row_test in test_dataset:
         k = K
         actual_class = row_test[class_column_name]
-        predicted_class = ''
         q = Queue.PriorityQueue()
         for row_training in training_dataset:
             d = distance_function(column_map, row_test, row_training)
@@ -102,7 +120,11 @@ def knn(training_dataset, test_dataset, distance_function, list_classes, class_c
         if len(list_probables) == 1:
             predicted_class = list_probables[0][1][class_column_name]
         else:
-            predicted_class = list_probables[0][1][class_column_name]
+            """predicted_class = list_probables[0][1][class_column_name]"""
+            freq = {}
+            for i in list_probables:
+                freq[i[1][class_column_name]] = freq.get(i[1][class_column_name], 0) + 1
+            predicted_class = max(freq, key=freq.get)
         confusion_matrix[predicted_class][actual_class] += 1
 
     return confusion_matrix
