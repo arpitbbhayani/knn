@@ -3,7 +3,6 @@ __author__ = 'arpit'
 import csv
 import random
 import Queue
-import sys
 
 
 def knn_classify(file_path, meta_file_path, on_attributes, class_column_name, distance_function):
@@ -15,6 +14,7 @@ def knn_classify(file_path, meta_file_path, on_attributes, class_column_name, di
     :param distance_function: The distance function that needs to be applied
     :return:
     """
+    summary = {}
     column_list, column_map = parse_meta(meta_file_path)
     column_name_to_number = {}
     csv_data = []
@@ -39,12 +39,31 @@ def knn_classify(file_path, meta_file_path, on_attributes, class_column_name, di
 
     n = len(csv_data)
 
+    aggregated_confusion_matrix = {}
+    for i in list_classes:
+        aggregated_confusion_matrix[i] = {}
+        for j in list_classes:
+            aggregated_confusion_matrix[i][j] = 0
+
     for i in range(10):
         """ Shuffle the dataset """
         random.shuffle(csv_data)
-        training_dataset = csv_data[0:n/2]
-        test_dataset = csv_data[n/2:]
-        knn(training_dataset, test_dataset, distance_function, list_classes, class_column_name, column_map, 1)
+        training_dataset = csv_data[0:n / 2]
+        test_dataset = csv_data[n / 2:]
+        confusion_matrix = knn(training_dataset, test_dataset, distance_function, list_classes, class_column_name,
+                               column_map, 1)
+
+        aggregate(aggregated_confusion_matrix, confusion_matrix)
+
+    summary['aggregated_confusion_matrix'] = aggregated_confusion_matrix
+    return summary
+
+
+def aggregate(aggregated_confusion_matrix, confusion_matrix):
+    for i in aggregated_confusion_matrix.keys():
+        for j in aggregated_confusion_matrix.keys():
+            aggregated_confusion_matrix[i][j] += confusion_matrix[i][j]
+
 
 
 def knn(training_dataset, test_dataset, distance_function, list_classes, class_column_name, column_map, K):
