@@ -57,6 +57,9 @@ def knn_classify(file_path, meta_file_path, on_attributes, class_column_name, di
         aggregate(aggregated_confusion_matrix, confusion_matrix)
 
     summary['aggregated_confusion_matrix'] = aggregated_confusion_matrix
+    summary['training_dataset'] = training_dataset
+    summary['test_dataset'] = test_dataset
+    summary['class_column_name'] = class_column_name
     return summary
 
 
