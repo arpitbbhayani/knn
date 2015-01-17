@@ -138,6 +138,42 @@ def knn(training_dataset, test_dataset, distance_function, list_classes, class_c
     return confusion_matrix
 
 
+def get_predicted_class(training_dataset, row_test, distance_function, class_column_name, column_map, K):
+
+    k = K
+    q = Queue.PriorityQueue()
+    for row_training in training_dataset:
+        d = distance_function(column_map, row_test, row_training)
+        q.put((d, row_training))
+
+    list_probables = []
+    last_dist = None
+    if not q.empty():
+        t = q.get()
+        list_probables.append(t)
+        last_dist = t[0]
+
+    while not q.empty():
+        t = q.get()
+        if t[0] != last_dist:
+            last_dist = t[0]
+            k -= 1
+        if k <= 0:
+            break
+        list_probables.append(t)
+
+    if len(list_probables) == 1:
+        predicted_class = list_probables[0][1][class_column_name]
+    else:
+        """predicted_class = list_probables[0][1][class_column_name]"""
+        freq = {}
+        for i in list_probables:
+            freq[i[1][class_column_name]] = freq.get(i[1][class_column_name], 0) + 1
+        predicted_class = max(freq, key=freq.get)
+
+    return predicted_class
+
+
 def parse_meta(file_path):
     """
     Accepts the CSV meta file

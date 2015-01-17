@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
 
-""" Specific to Breast Cancer Dataset """
+""" Specific to Breast Cancer Dataset
 column_list, column_map = utils.parse_meta("/home/arpit/Downloads/bc.meta")
 result = utils.knn_classify(
     "/home/arpit/Downloads/bc.data",
@@ -34,6 +34,7 @@ print 'Accuracy for 10 runs: ', list_accuracy
 print 'Mean Accuracy : ', Stat.mean(list_accuracy)
 print 'Variance : ', Stat.variance(list_accuracy)
 print 'Standard Deviation : ', Stat.standard_deviation(list_accuracy)
+"""
 
 
 """ Specific to Wine Dataset
@@ -73,11 +74,11 @@ print 'Standard Deviation : ', Stat.standard_deviation(list_accuracy)
 
 
 
-""" Specific to Iris Dataset
-column_list, column_map = utils.parse_meta("/home/arpit/Downloads/iris.meta.txt")
+""" Specific to Iris Dataset """
+column_list, column_map = utils.parse_meta("/home/arpit/Downloads/iris.meta")
 result = utils.knn_classify(
-    "/home/arpit/Downloads/iris.data.txt",
-    "/home/arpit/Downloads/iris.meta.txt",
+    "/home/arpit/Downloads/iris.data",
+    "/home/arpit/Downloads/iris.meta",
     ['sepal width in cm', 'petal width in cm'],
     'class',
     Globals.euclidean
@@ -138,5 +139,24 @@ plt.legend([ro, bo, go, rc, bc, gc],
 
 mng = plt.get_current_fig_manager()
 mng.resize(*mng.window.maxsize())
+
+""" Decision Boundary """
+
+print result['training_dataset'][0]
+
+i,j = 0, 0
+while i < 5:
+    last_class = None
+    j = 0
+    while j < 3:
+        c = utils.get_predicted_class(result['training_dataset'],
+                                  {'sepal width in cm': round(i,2), 'class': 'Iris-versicolor', 'petal width in cm': round(j,2)},
+                                  Globals.euclidean, class_column_name, column_map, 1)
+
+        if last_class is None or c != last_class:
+            last_class = c
+            plt.plot(i, j, 'r.')
+        j += 0.1
+    i += 0.1
+
 plt.show()
-"""
