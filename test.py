@@ -6,7 +6,74 @@ import Globals
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
-""" Specific to Iris Dataset """
+
+""" Specific to Breast Cancer Dataset """
+column_list, column_map = utils.parse_meta("/home/arpit/Downloads/bc.meta")
+result = utils.knn_classify(
+    "/home/arpit/Downloads/bc.data",
+    "/home/arpit/Downloads/bc.meta",
+    ['Mitoses', 'Bare Nuclei', 'Uniformity of Cell Shape'],
+    'class',
+    Globals.euclidean
+)
+data = result['aggregated_confusion_matrix']
+list_accuracy = list(result[i]['class_stat']['accuracy'] for i in range(10))
+
+
+print 'Number of instances : ', result['number_instance']
+print 'Number of Features : ', len(result['column_list']) - 1
+print 'Classes : ', result['list_classes']
+print 'Confusion Matrix for the dataset over 10 runs :'
+for i in data.keys():
+    print i, ' ',
+    for j in data.keys():
+        print data[i][j], ' ',
+    print ''
+
+print 'Accuracy for 10 runs: ', list_accuracy
+print 'Mean Accuracy : ', Stat.mean(list_accuracy)
+print 'Variance : ', Stat.variance(list_accuracy)
+print 'Standard Deviation : ', Stat.standard_deviation(list_accuracy)
+
+
+""" Specific to Wine Dataset
+column_list, column_map = utils.parse_meta("/home/arpit/Downloads/wine.meta")
+result = utils.knn_classify(
+    "/home/arpit/Downloads/wine.data",
+    "/home/arpit/Downloads/wine.meta",
+    ['Alcohol', 'Ash', 'Malic acid', 'Flavanoids'],
+    'class',
+    Globals.euclidean
+)
+data = result['aggregated_confusion_matrix']
+list_accuracy = list(result[i]['class_stat']['accuracy'] for i in range(10))
+
+
+print 'Number of instances : ', result['number_instance']
+print 'Number of Features : ', len(result['column_list']) - 1
+print 'Classes : ', result['list_classes']
+print 'Confusion Matrix for the dataset over 10 runs :'
+for i in data.keys():
+    print i, ' ',
+    for j in data.keys():
+        print data[i][j], ' ',
+    print ''
+
+print 'Accuracy for 10 runs: ', list_accuracy
+print 'Mean Accuracy : ', Stat.mean(list_accuracy)
+print 'Variance : ', Stat.variance(list_accuracy)
+print 'Standard Deviation : ', Stat.standard_deviation(list_accuracy)
+
+"""
+
+
+
+
+
+
+
+
+""" Specific to Iris Dataset
 column_list, column_map = utils.parse_meta("/home/arpit/Downloads/iris.meta.txt")
 result = utils.knn_classify(
     "/home/arpit/Downloads/iris.data.txt",
@@ -36,7 +103,6 @@ print 'Standard Deviation : ', Stat.standard_deviation(list_accuracy)
 
 plt.xlabel('sepal width in cm')
 plt.ylabel('petal width in cm')
-""" To be used for decision boundary plt.plot([1,2,3,4], [1,4,9,16]) """
 
 x, y, class_column_name = 'sepal width in cm', 'petal width in cm', result['class_column_name']
 new_train_list = sorted(result['training_dataset'], key=lambda k: (float(k[y]), float(k[x])), reverse=True)
@@ -73,3 +139,4 @@ plt.legend([ro, bo, go, rc, bc, gc],
 mng = plt.get_current_fig_manager()
 mng.resize(*mng.window.maxsize())
 plt.show()
+"""

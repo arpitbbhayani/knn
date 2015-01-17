@@ -37,6 +37,10 @@ def euclidean(column_map, data1, data2):
         yi = data2[key]
 
         if column_map[key] == Datatypes.CONTINUOUS:
+            if xi == '?':
+                xi = 1
+            if yi == '?':
+                yi = 1
             distance_sum += ((float(xi) - float(yi))**2)
         elif column_map[key] == Datatypes.DISCRETE:
             pass
