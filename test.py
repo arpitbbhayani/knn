@@ -4,6 +4,7 @@ import Stat
 import utils
 import Globals
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 
 """ Specific to Iris Dataset """
 column_list, column_map = utils.parse_meta("/home/arpit/Downloads/iris.meta.txt")
@@ -16,7 +17,19 @@ result = utils.knn_classify(
 )
 data = result['aggregated_confusion_matrix']
 list_accuracy = list(result[i]['class_stat']['accuracy'] for i in range(10))
-print list_accuracy
+
+
+print 'Number of instances : ', result['number_instance']
+print 'Number of Features : ', len(result['column_list']) - 1
+print 'Classes : ', result['list_classes']
+print 'Confusion Matrix for the dataset over 10 runs :'
+for i in data.keys():
+    print i, ' ',
+    for j in data.keys():
+        print data[i][j], ' ',
+    print ''
+
+print 'Accuracy for 10 runs: ', list_accuracy
 print 'Mean Accuracy : ', Stat.mean(list_accuracy)
 print 'Variance : ', Stat.variance(list_accuracy)
 print 'Standard Deviation : ', Stat.standard_deviation(list_accuracy)
@@ -33,19 +46,30 @@ plt.axis([0, 5, 0, 3])
 
 for i in new_train_list:
     if i[class_column_name] == 'Iris-setosa':
-        plt.plot(i[x], i[y], 'ro')
+        ro, = plt.plot(i[x], i[y], 'ro')
     elif i[class_column_name] == 'Iris-virginica':
-        plt.plot(i[x], i[y], 'bo')
+        bo, = plt.plot(i[x], i[y], 'bo')
     else:
-        plt.plot(i[x], i[y], 'go')
+        go, = plt.plot(i[x], i[y], 'go')
 
 for i in new_test_list:
     if i[class_column_name] == 'Iris-setosa':
-        plt.plot(i[x], i[y], 'r^')
+        rc, = plt.plot(i[x], i[y], 'r^')
     elif i[class_column_name] == 'Iris-virginica':
-        plt.plot(i[x], i[y], 'b^')
+        bc, = plt.plot(i[x], i[y], 'b^')
     else:
-        plt.plot(i[x], i[y], 'g^')
+        gc, = plt.plot(i[x], i[y], 'g^')
 
 
+fontP = FontProperties()
+fontP.set_size('small')
+
+plt.legend([ro, bo, go, rc, bc, gc],
+           [
+               'Iris-setosa (training)', 'Iris-virginica(training)', 'Iris-versicolor(training)',
+               'Iris-setosa (test)', 'Iris-virginica(test)', 'Iris-versicolor(test)'
+           ], prop=fontP)
+
+mng = plt.get_current_fig_manager()
+mng.resize(*mng.window.maxsize())
 plt.show()

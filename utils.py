@@ -16,6 +16,9 @@ def knn_classify(file_path, meta_file_path, on_attributes, class_column_name, di
     """
     summary = {}
     column_list, column_map = parse_meta(meta_file_path)
+
+    summary['column_list'] = column_list
+
     column_name_to_number = {}
     csv_data = []
     list_classes = set()
@@ -60,6 +63,8 @@ def knn_classify(file_path, meta_file_path, on_attributes, class_column_name, di
     summary['training_dataset'] = training_dataset
     summary['test_dataset'] = test_dataset
     summary['class_column_name'] = class_column_name
+    summary['number_instance'] = n
+    summary['list_classes'] = list_classes
     return summary
 
 
@@ -75,7 +80,7 @@ def get_statistics_for_dataset(dataset, class_column_name, confusion_matrix):
     sum_data = 0.0
     for i in confusion_matrix.keys():
         sum_data += confusion_matrix[i][i]
-    class_stat['accuracy'] = sum_data/number_of_datapoints
+    class_stat['accuracy'] = round(sum_data/number_of_datapoints, 5) * 100
     stat_data['number_of_datapoints'] = number_of_datapoints
     stat_data['number_of_classes'] = len(freq.keys())
     stat_data['class_stat'] = class_stat

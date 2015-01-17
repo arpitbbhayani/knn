@@ -7,7 +7,7 @@ def mean(values):
     total_sum = 0.0
     for i in values:
         total_sum += float(i)
-    return total_sum/len(values)
+    return round(total_sum/len(values), 5)
 
 
 def variance(values):
@@ -15,8 +15,8 @@ def variance(values):
     total_sum = 0.0
     for i in values:
         total_sum += math.pow(abs(i-mu), 2)
-    return total_sum/len(values)
+    return round(total_sum/len(values), 5)
 
 
 def standard_deviation(values):
-    return math.sqrt(variance(values))
+    return round(math.sqrt(variance(values)), 5)
